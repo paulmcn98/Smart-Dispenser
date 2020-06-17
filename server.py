@@ -40,6 +40,7 @@ class Dispenser_schema(ma.Schema):
 
 #Initialise schema
 dispenser_schema = Dispenser_schema()
+dispensers_schema = Dispenser_schema(many=True)
 
 #Add a new dispenser device to the database
 @app.route('/dispenserdb', methods=['POST'])
@@ -89,6 +90,13 @@ def delete_product(id):
     db.session.commit()
   
     return dispenser_schema.jsonify(dispenser)
+
+# Get all data entrys in table for a dispenser
+@app.route('/dispenserdb', methods=['GET'])
+def get_data():
+  all_data = Dispenser.query.all()
+  result = dispensers_schema.dump(all_data)
+  return jsonify(result)
 
 
 # Run the server
