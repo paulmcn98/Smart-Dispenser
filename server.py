@@ -19,24 +19,24 @@ ma = Marshmallow(app)
 class Dispenser(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.String(100))
-    time = db.Column(db.String(10))
+    time = db.Column(db.Integer)
     fluid_dispensed = db.Column(db.Float)
     fluid_level = db.Column(db.Float)
-    times_used = db.Column(db.Integer)
-    times_ignored = db.Column(db.Integer)
+    used = db.Column(db.Integer)
+    ignored = db.Column(db.Integer)
   
-    def __init__(self, date, time, fluid_dispensed, fluid_level, times_used, times_ignored):
+    def __init__(self, date, time, fluid_dispensed, fluid_level, used, ignored):
       self.date = date
       self.time = time
       self.fluid_dispensed = fluid_dispensed
       self.fluid_level = fluid_level
-      self.times_used = times_used
-      self.times_ignored = times_ignored
+      self.used = used
+      self.ignored = ignored
 
 #Dispenser Schema
 class Dispenser_schema(ma.Schema):
     class Meta:
-      fields = ('id', 'date', 'time', 'fluid_dispensed', 'fluid_level', 'times_used', 'times_ignored')
+      fields = ('id', 'date', 'time', 'fluid_dispensed', 'fluid_level', 'used', 'ignored')
 
 #Initialise schema
 dispenser_schema = Dispenser_schema()
@@ -49,10 +49,10 @@ def add_dispenser():
     time = request.json['time']
     fluid_dispensed = request.json['fluid_dispensed']
     fluid_level = request.json['fluid_level']
-    times_used = request.json['times_used']
-    times_ignored = request.json['times_ignored']
+    used = request.json['used']
+    ignored = request.json['ignored']
   
-    new_dispenser = Dispenser(date, time, fluid_dispensed, fluid_level, times_used, times_ignored)
+    new_dispenser = Dispenser(date, time, fluid_dispensed, fluid_level, used, ignored)
   
     db.session.add(new_dispenser)
     db.session.commit()
@@ -68,15 +68,15 @@ def update_dispenser(id):
     time = request.json['time']
     fluid_dispensed = request.json['fluid_dispensed']
     fluid_level = request.json['fluid_level']
-    times_used = request.json['times_used']
-    times_ignored = request.json['times_ignored']
+    used = request.json['used']
+    ignored = request.json['ignored']
   
     dispenser.date = date
     dispenser.time = time
     dispenser.fluid_dispensed = fluid_dispensed
     dispenser.fluid_level = fluid_level
-    dispenser.times_used += times_used
-    dispenser.times_ignored += times_ignored
+    dispenser.used += used
+    dispenser.ignored += ignored
   
     db.session.commit()
   
