@@ -2,7 +2,10 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy 
 from flask_marshmallow import Marshmallow 
 import os
-
+from flask_socketio import SocketIO, send, emit
+ 
+#Number of dispensers connected to the server
+no_of_dispensers = 0
 
 #Initialise app
 app = Flask(__name__)
@@ -12,12 +15,22 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:intragroup16@localhost/dis
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 #Initialise db
 db = SQLAlchemy(app)
-# Init ma
+#Initialise ma
 ma = Marshmallow(app)
+#Initialise socketio
+socketio = SocketIO(app)
 
+#When a new client connects to the server
+@socketio.on('connect')
+def connect():
+    global no_of_dispensers
+    print('Device ' + str(no_of_dispensers + 1) + " is connected")
+    no_of_dispensers += 1
+                                
 #Dispenser class
 class Dispenser(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    device_id = db.Column(db.String(100))
     date = db.Column(db.String(100))
     time = db.Column(db.Integer)
     fluid_dispensed = db.Column(db.Float)
@@ -25,7 +38,8 @@ class Dispenser(db.Model):
     used = db.Column(db.Integer)
     ignored = db.Column(db.Integer)
   
-    def __init__(self, date, time, fluid_dispensed, fluid_level, used, ignored):
+    def __init__(self, device_id, date, time, fluid_dispensed, fluid_level, used, ignored):
+      self.device_id = device_id
       self.date = date
       self.time = time
       self.fluid_dispensed = fluid_dispensed
@@ -36,15 +50,16 @@ class Dispenser(db.Model):
 #Dispenser Schema
 class Dispenser_schema(ma.Schema):
     class Meta:
-      fields = ('id', 'date', 'time', 'fluid_dispensed', 'fluid_level', 'used', 'ignored')
+      fields = ('id', 'device_id', 'date', 'time', 'fluid_dispensed', 'fluid_level', 'used', 'ignored')
 
 #Initialise schema
 dispenser_schema = Dispenser_schema()
 dispensers_schema = Dispenser_schema(many=True)
 
-#Add a new dispenser device to the database
+#Add a new dispenser data input to the database
 @app.route('/dispenserdb', methods=['POST'])
 def add_dispenser():
+    device_id = request.json['device_id']
     date = request.json['date']
     time = request.json['time']
     fluid_dispensed = request.json['fluid_dispensed']
@@ -52,7 +67,7 @@ def add_dispenser():
     used = request.json['used']
     ignored = request.json['ignored']
   
-    new_dispenser = Dispenser(date, time, fluid_dispensed, fluid_level, used, ignored)
+    new_dispenser = Dispenser(device_id, date, time, fluid_dispensed, fluid_level, used, ignored)
   
     db.session.add(new_dispenser)
     db.session.commit()
@@ -64,6 +79,7 @@ def add_dispenser():
 def update_dispenser(id):
     dispenser = Dispenser.query.get(id)
   
+    device_id = request.json['device_id']
     date = request.json['date']
     time = request.json['time']
     fluid_dispensed = request.json['fluid_dispensed']
@@ -71,6 +87,7 @@ def update_dispenser(id):
     used = request.json['used']
     ignored = request.json['ignored']
   
+    dispenser.device_id = device_id
     dispenser.date = date
     dispenser.time = time
     dispenser.fluid_dispensed = fluid_dispensed
@@ -78,15 +95,6 @@ def update_dispenser(id):
     dispenser.used += used
     dispenser.ignored += ignored
   
-    db.session.commit()
-  
-    return dispenser_schema.jsonify(dispenser)
-
-#Delete a dispenser data from the table
-@app.route('/dispenserdb/<id>', methods=['DELETE'])
-def delete_product(id):
-    dispenser = Dispenser.query.get(id)
-    db.session.delete(dispenser)
     db.session.commit()
   
     return dispenser_schema.jsonify(dispenser)
@@ -101,4 +109,4 @@ def get_data():
 
 # Run the server
 if __name__ == '__main__':
-  app.run(debug=True)
+  socketio.run(app)
