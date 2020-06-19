@@ -35,7 +35,7 @@ class Dispenser(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     device_id = db.Column(db.String(100))
     date = db.Column(db.String(100))
-    time = db.Column(db.Integer)
+    time = db.Column(db.String(10))
     fluid_dispensed = db.Column(db.Float)
     fluid_level = db.Column(db.Float)
     used = db.Column(db.Integer)
