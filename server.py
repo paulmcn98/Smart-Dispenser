@@ -4,8 +4,8 @@ from flask_marshmallow import Marshmallow
 import os
 from flask_socketio import SocketIO, send, emit
  
-#Number of dispensers connected to the server
-no_of_dispensers = 0
+#List of dispensers connected to the server
+list_of_dispensers = []
 
 #Initialise app
 app = Flask(__name__)
@@ -23,9 +23,12 @@ socketio = SocketIO(app)
 #When a new client connects to the server
 @socketio.on('connect')
 def connect():
-    global no_of_dispensers
-    print('Device ' + str(no_of_dispensers + 1) + " is connected")
-    no_of_dispensers += 1
+    global list_of_dispensers
+    #client session id
+    new_client_id = request.sid
+    list_of_dispensers.append(new_client_id)
+    print('Device ' + request.sid + " is connected")
+    
                                 
 #Dispenser class
 class Dispenser(db.Model):
