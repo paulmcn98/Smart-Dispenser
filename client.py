@@ -22,7 +22,7 @@ class Device():
     def create_table():
         from server import db
         db.create_all()
-        print("table created")
+        print("Table created")
 
     #Function for picking random date when generating data
     def random_date():
@@ -76,6 +76,7 @@ class Device():
 def main():
     sio = socketio.Client()
     sio.connect('http://127.0.0.1:5000')
+    #Get the session id
     print('Device id is', sio.sid)
     client = Device(sio.sid)
     #infinite client loop
