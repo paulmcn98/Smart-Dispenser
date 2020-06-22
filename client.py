@@ -9,6 +9,7 @@ import socketio
 
 class Device():
     def __init__(self, sid):
+        #session id will be used as device id
         self.id = sid
         ip_address = "127.0.0.1"
         port = 5000
@@ -58,7 +59,7 @@ class Device():
             #all data is random for purposes of example
             sensor_reading = round(random.uniform(5,8), 2)
             self.fluid_level -= sensor_reading
-        #generate a random time between 9am and 6pm in 24h format
+        #generate a random time between 9am and 7pm in 24h format
         time = Device.random_time()
         #generate a random date
         date = Device.random_date()
@@ -83,6 +84,7 @@ class Device():
             return ("Server failed to recieve data")
 
 def main():
+    #connect to server
     sio = socketio.Client()
     sio.connect('http://127.0.0.1:5000')
     #Get the session id
