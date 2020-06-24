@@ -15,6 +15,6 @@ python3 client.py
 # preform data analytics on data from mySQL server
 python3 data_analytics.py
 
-# run the neural network to the minutes between each use of a dispenser
+# run the neural network to predict the minutes between each use of a dispenser
 python3 machine_learning.py
 ```
