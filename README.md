@@ -1,5 +1,5 @@
-**Set up guide**
-``
+# **Set-up guide**
+```
 # install dependencies
 pip3 install -r requirements.txt
 
@@ -16,4 +16,5 @@ python3 client.py
 python3 data_analytics.py
 
 # run the neural network to the minutes between each use of a dispenser
-python3 machine_learning.py``
+python3 machine_learning.py
+```
